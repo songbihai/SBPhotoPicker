@@ -130,7 +130,7 @@ extension SBPhotoPickerViewController {
 }
 
 extension SBPhotoPickerViewController: SBPhotoPickerSettings {
-    
+    /// 是否显示状态栏
     open var fullscreen: Bool {
         get {
             return settings.fullscreen
@@ -140,6 +140,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
     
+    /// 最大选择数量
     open var maxNumberOfSelections: Int {
         get {
             return settings.maxNumberOfSelections
@@ -149,6 +150,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
 
+    /// 选中的圆圈的颜色
     open var selectionFillColor: UIColor {
         get {
             return settings.selectionFillColor
@@ -158,6 +160,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
 
+    /// 选中的圆圈的外圈颜色
     open var selectionStrokeColor: UIColor {
         get {
             return settings.selectionStrokeColor
@@ -167,6 +170,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
 
+    /// 选中的阴影颜色
     open var selectionShadowColor: UIColor {
         get {
             return settings.selectionShadowColor
@@ -176,6 +180,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
 
+    /// 选中数量数字的属性
     open var selectionTextAttributes: [String: AnyObject] {
         get {
             return settings.selectionTextAttributes
@@ -185,6 +190,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
     
+    /// item之间的间距
     open var itemSpacing: CGFloat {
         get {
             return settings.itemSpacing
@@ -194,6 +200,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
     
+    /// 根据SizeClass确定一行显示几个item
     open var cellsPerRow: (_ verticalSize: UIUserInterfaceSizeClass, _ horizontalSize: UIUserInterfaceSizeClass) -> Int {
         get {
             return settings.cellsPerRow
@@ -203,6 +210,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
 
+    /// 第一个cell是否显示拍照
     open var takePhotos: Bool {
         get {
             return settings.takePhotos
@@ -212,6 +220,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
     
+    /// 第一个cell是否显示实时画面
     open var takeCaremra: Bool {
         get {
             return settings.takeCaremra
@@ -221,6 +230,7 @@ extension SBPhotoPickerViewController: SBPhotoPickerSettings {
         }
     }
     
+    /// 第一个cell是拍照的图片icon
     open var takePhotoIcon: UIImage? {
         get {
             return settings.takePhotoIcon

@@ -19,26 +19,18 @@ class ViewController: UIViewController {
         let vc = SBPhotoPickerViewController()
         vc.takePhotos = true
         vc.fullscreen = true
-        sb_presentImagePickerController(vc, animated: true, select: { (asset) in
-                print("select: \(asset)")
-            }, deselect: { (asset) in
-                print("deselect: \(asset)")
-            }, cancel: { (assets) in
-                print("cancel: \(assets.count)")
-            }, finish: { (assets) in
-                print("finish: \(assets.count)")
+//        vc.takeCaremra = true
+        sb_presentImagePickerController(vc, animated: true, select: { (photo) in
+                print("select: \(photo)")
+            }, deselect: { (photo) in
+                print("deselect: \(photo)")
+            }, cancel: { (photos) in
+                print("cancel: \(photos.count)")
+            }, finish: { (photos) in
+                print("finish: \(photos.count)")
             }) { 
                 
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setNeedsStatusBarAppearanceUpdate()
-    }
-    
-    override var prefersStatusBarHidden : Bool {
-        return true
     }
     
     override func didReceiveMemoryWarning() {

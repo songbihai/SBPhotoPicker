@@ -9,30 +9,6 @@
 import UIKit
 import Photos
 
-// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
-// Consider refactoring the code to use the non-optional operators.
-fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
-}
-
-// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
-// Consider refactoring the code to use the non-optional operators.
-fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l > r
-  default:
-    return rhs < lhs
-  }
-}
-
 
 final class SBPhotosViewController: UICollectionViewController {
     var selectionClosure: ((_ photo: SBPhoto) -> Void)?
@@ -44,11 +20,19 @@ final class SBPhotosViewController: UICollectionViewController {
     
     var selectedIndexPaths = [IndexPath]()
     var selections = [SBPhoto]()
-    var photoCollection: SBPhotoCollection!
+    var photoCollection: SBPhotoCollection! {
+        didSet {
+            guard let fetchResult = photoCollection.fetchResult else {
+                return
+            }
+            self.fetchResult = fetchResult
+        }
+    }
     var photoCollections: [SBPhotoCollection]!
     var fetchResult: PHFetchResult<PHAsset>!
     var cameraDataSource: SBCameraCollectionViewDataSource
     
+    fileprivate var selectedAlbumIndex: Int = 0
     fileprivate let cameraAvailable: Bool = UIImagePickerController.isSourceTypeAvailable(.camera)
     fileprivate let photosManager = PHCachingImageManager.default()
     fileprivate let imageContentMode: PHImageContentMode = .aspectFill
@@ -80,7 +64,11 @@ final class SBPhotosViewController: UICollectionViewController {
     fileprivate var doneBarButtonTitle: String?
     fileprivate let expandAnimator = SBZoomAnimator() //push动画
     fileprivate let shrinkAnimator = SBZoomAnimator() //pop动画
-    fileprivate var albumsDataSource: SBAlbumTableViewDataSource
+    fileprivate var albumsDataSource: SBAlbumTableViewDataSource {
+        didSet {
+            
+        }
+    }
     
     init(photoCollections: [SBPhotoCollection], defaultSelections: SBPhotoCollection, settings aSettings: SBPhotoPickerSettings) {
         albumsDataSource = SBAlbumTableViewDataSource(photoCollections: photoCollections)
@@ -97,6 +85,9 @@ final class SBPhotosViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override var prefersStatusBarHidden : Bool {
+        return settings.fullscreen
+    }
     
     override func loadView() {
         super.loadView()
@@ -131,14 +122,14 @@ final class SBPhotosViewController: UICollectionViewController {
         super.viewDidLoad()
         alphaView.frame = view.bounds
         view.addSubview(alphaView)
-        albumsViewController.view.frame = CGRect(x: 0, y: -view.bounds.height + 64, width: view.bounds.width, height: view.bounds.height - 64)
+        albumsViewController.view.frame = CGRect(x: 0, y: -view.bounds.height + (settings.fullscreen ? 44 : 64), width: view.bounds.width, height: view.bounds.height - (settings.fullscreen ? 44 : 64))
         view.addSubview(albumsViewController.view)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        updateDoneButton()
+        self.updateDoneButton()
     }
     
     func cancelButtonPressed(_ sender: UIBarButtonItem) {
@@ -210,7 +201,7 @@ extension SBPhotosViewController: UINavigationControllerDelegate {
     }
 }
 
-// MARK: PHPhotoLibraryChangeObserver（逻辑现还有问题）
+// MARK: PHPhotoLibraryChangeObserver
 extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
     func photoLibraryDidChange(_ changeInstance: PHChange) {
         guard let collectionView = collectionView else {
@@ -219,29 +210,32 @@ extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
         
         dispatch_async_safely_to_main_queue {
             if let photosChanges = changeInstance.changeDetails(for: self.fetchResult) {
-
-                if photosChanges.hasIncrementalChanges && (photosChanges.removedIndexes?.count > 0 || photosChanges.insertedIndexes?.count > 0 || photosChanges.changedIndexes?.count > 0) {
+                
+                if photosChanges.hasIncrementalChanges && ((photosChanges.removedIndexes?.count ?? 0) > 0 || (photosChanges.insertedIndexes?.count ?? 0) > 0 || (photosChanges.changedIndexes?.count ?? 0) > 0) {
                     
                     self.fetchResult = photosChanges.fetchResultAfterChanges
+                    let title = self.photoCollection.title
                     self.photoCollection = SBPhotoCollection()
-                    self.fetchResult.enumerateObjects(using: { (asset, idx, stop) in
-                        self.photoCollection.append(SBPhoto(asset: asset))
+                    self.photoCollection.title = title
+                    self.selectedIndexPaths = [IndexPath]()
+                    self.fetchResult.enumerateObjects(using: { [unowned self](asset, idx, stop) in
+                        let assets = self.selections.map({ (photo) -> PHAsset in
+                            return photo.asset!
+                        })
+                        let photo = SBPhoto(asset: asset)
+                        if assets.contains(asset) {
+                            photo.selected = true
+                            self.selectedIndexPaths.append(IndexPath.init(item: idx, section: self.settings.takePhotos && self.cameraAvailable ? 1 : 0))
+                        }else {
+                            photo.selected = false
+                        }
+                        self.photoCollection.append(photo)
+                        
                     })
-                    
-                    if let removed = photosChanges.removedIndexes {
-                        collectionView.deleteItems(at: removed.sb_indexPathsForSection(0))
-                    }
-                    
-                    if let inserted = photosChanges.insertedIndexes {
-                        collectionView.insertItems(at: inserted.sb_indexPathsForSection(0))
-                    }
-                } else if photosChanges.hasIncrementalChanges == false {
-                    self.fetchResult = photosChanges.fetchResultAfterChanges
-                    self.photoCollection = SBPhotoCollection()
-                    self.fetchResult.enumerateObjects(using: { (asset, idx, stop) in
-                        self.photoCollection.append(SBPhoto(asset: asset))
-                    })
-                    
+                    self.photoCollections[self.selectedAlbumIndex] = self.photoCollection
+                    self.albumsDataSource = SBAlbumTableViewDataSource.init(photoCollections: self.photoCollections)
+                    self.albumsViewController.tableView.dataSource = self.albumsDataSource
+                    self.albumsViewController.tableView.reloadData()
                     collectionView.reloadData()
                 }
             }
@@ -326,6 +320,7 @@ extension SBPhotosViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row < self.photoCollections.count {
             let album = self.photoCollections[indexPath.row]
+            selectedAlbumIndex = indexPath.row
             initializePhotosDataSource(album)
             updateAlbumTitle(album)
             synchronizeCollectionView()
@@ -340,7 +335,7 @@ extension SBPhotosViewController: UITableViewDelegate {
     }
 }
 
-// MARK: UIImagePickerControllerDelegate（拍照选中的逻辑有问题）
+// MARK: UIImagePickerControllerDelegate
 extension SBPhotosViewController: UIImagePickerControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
@@ -359,8 +354,8 @@ extension SBPhotosViewController: UIImagePickerControllerDelegate {
                 }
                 
                 dispatch_async_safely_to_main_queue {
-                    self.selections.append(SBPhoto(asset: asset))
-                    self.selectedIndexPaths.append(IndexPath.init(item: 1, section: 0))
+                    self.selections.insert(SBPhoto(asset: asset), at: 0)
+                    self.selectedIndexPaths.append(IndexPath.init(item: 0, section: (self.settings.takePhotos && self.cameraAvailable) ? 1 : 0))
                     self.updateDoneButton()
                     
                     dispatch_async_safely_to_queue(DispatchQueue.global(qos: .default), {
@@ -390,8 +385,7 @@ extension SBPhotosViewController {
             collectionViewFlowLayout.itemsPerRow = cellsPerRow
             
             self.imageSize = collectionViewFlowLayout.itemSize
-            
-            updateDoneButton()
+            self.updateDoneButton()
         }
     }
 }
@@ -400,6 +394,10 @@ extension SBPhotosViewController {
     
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let composedDataSource = composedDataSource, composedDataSource.dataSources[indexPath.section].isEqual(cameraDataSource) {
+            guard selections.count < settings.maxNumberOfSelections else {
+                self.showAlert("最多只能选择\(settings.maxNumberOfSelections)张", message: nil, cancel: "我知道了")
+                return collectionView.isUserInteractionEnabled && selections.count < settings.maxNumberOfSelections
+            }
             let cameraController = UIImagePickerController()
             cameraController.allowsEditing = false
             cameraController.sourceType = .camera
@@ -417,7 +415,7 @@ extension SBPhotosViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        guard let cell = cell as? SBCameraCell else {
+        guard let cell = cell as? SBCameraCell, settings.takeCaremra else {
             return
         }
         cell.startLiveBackground()
@@ -444,31 +442,28 @@ extension SBPhotosViewController {
         if cell.tag != 0 {
             photosManager.cancelImageRequest(PHImageRequestID(cell.tag))
         }
-        if indexPath.item < photoCollection.count {
-            if let photo = photoCollection[indexPath.item] {
-                
-                cell.tag = Int((photo.requestImage(imageSize,contentMode: imageContentMode)  { (result) in
-                        cell.imageView.image = result
-                    })!)
-                cell.photo = photo
-                cell.selectedButtonClick = { [unowned self](selected) in
-                    if selected {
-                        //选中
-                        self.didSelectItem(indexPath)
-                    }else {
-                        //取消选中
-                        self.didDeselectItem(indexPath)
-                    }
+        if let photo = photoCollection[indexPath.item] {
+            
+            cell.tag = Int((photo.requestImage(imageSize,contentMode: imageContentMode)  { (result) in
+                    cell.imageView.image = result
+                })!)
+            cell.photo = photo
+            cell.selectedButtonClick = { [unowned self](selected) in
+                if !selected {
+                    //选中
+                    self.didSelectItem(indexPath)
+                }else {
+                    //取消选中
+                    self.didDeselectItem(indexPath)
                 }
-                if let asset = photoCollection[indexPath.item] {
-                    if let index = selections.index(of: asset) {
-                        cell.selectionString = String(index+1)
-                        asset.selected = true
-                        cell.selectedPhoto = true
-                    } else {
-                        cell.selectedPhoto = false
-                        asset.selected = false
-                    }
+            }
+            cell.selectedPhoto = photo.selected
+            if photo.selected {
+                let assets = selections.map({ (slectedPhoto) -> PHAsset in
+                    return slectedPhoto.asset!
+                })
+                if let index = assets.index(of: photo.asset!) {
+                    cell.selectionString = String(index+1)
                 }
             }
         }
@@ -480,38 +475,49 @@ extension SBPhotosViewController {
 // MARK: 处理选中或取消选中的逻辑
 private extension SBPhotosViewController {
     func didSelectItem(_ indexPath: IndexPath) {
-        guard let cell = collectionView?.cellForItem(at: indexPath) as? SBPhotoCell, let photo = self.photoCollection[indexPath.item] else {
+        guard selections.count < settings.maxNumberOfSelections else {
+            self.showAlert("最多只能选择\(settings.maxNumberOfSelections)张", message: nil, cancel: "我知道了")
+            return
+        }
+        guard let cell = collectionView?.cellForItem(at: fixIndexPath(indexPath)) as? SBPhotoCell, let photo = self.photoCollection[fixIndexPath(indexPath).item] else {
             return
         }
         cell.selectedPhoto = true
         photo.selected = true
         self.selections.append(photo)
-        self.selectedIndexPaths.append(indexPath)
+        self.selectedIndexPaths.append(fixIndexPath(indexPath))
         
         cell.selectionString = String(self.selections.count)
-        updateDoneButton()
+        self.updateDoneButton()
         dispatch_async_safely_to_queue(DispatchQueue.global(qos: .default), {
             self.selectionClosure?(photo)
         })
     }
     
     func didDeselectItem(_ indexPath: IndexPath) {
-        guard let cell = collectionView?.cellForItem(at: indexPath) as? SBPhotoCell, let photo = self.photoCollection[indexPath.item], let index = self.selections.index(of: photo) else {
+        let assets = self.selections.map { (selectedPhoto) -> PHAsset in
+            return selectedPhoto.asset!
+        }
+        guard let cell = collectionView?.cellForItem(at: fixIndexPath(indexPath)) as? SBPhotoCell, let photo = self.photoCollection[fixIndexPath(indexPath).item], let index = assets.index(of: photo.asset!) else {
             return
         }
         photo.selected = false
         cell.selectedPhoto = false
         self.selections.remove(at: index)
         self.selectedIndexPaths.remove(at: index)
-        updateDoneButton()
-        if selectedIndexPaths.count != 0 {
-            UIView.setAnimationsEnabled(false)
-            collectionView?.reloadItems(at: selectedIndexPaths)
-            UIView.setAnimationsEnabled(true)
-        }
+        self.updateDoneButton()
+        synchronizeCollectionView()
         dispatch_async_safely_to_queue(DispatchQueue.global(qos: .default), {
             self.deselectionClosure?(photo)
         })
+    }
+    
+    func fixIndexPath(_ indexPath: IndexPath) -> IndexPath {
+        if settings.takePhotos && cameraAvailable {
+            return IndexPath(item: indexPath.item, section: 1)
+        }else {
+            return IndexPath(item: indexPath.item, section: indexPath.section)
+        }
     }
 }
 

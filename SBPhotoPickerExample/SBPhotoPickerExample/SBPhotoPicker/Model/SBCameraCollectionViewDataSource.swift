@@ -40,7 +40,7 @@ extension SBCameraCollectionViewDataSource: UICollectionViewDataSource {
         let cameraCell = collectionView.dequeueReusableCell(withReuseIdentifier: SBCameraCell.identifier, for: indexPath) as! SBCameraCell
         cameraCell.accessibilityIdentifier = "camera_cell_\(indexPath.item)"
         cameraCell.takePhotoIcon = settings.takePhotoIcon
-        
+        cameraCell.settings = settings
         return cameraCell
     }
 }

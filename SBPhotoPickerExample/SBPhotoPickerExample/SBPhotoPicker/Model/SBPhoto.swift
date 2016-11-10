@@ -59,15 +59,21 @@ open class SBPhoto: NSObject {
             //待续
             return nil
         case .imageName:
-            resultHandler(UIImage(named: imageName))
+            dispatch_async_safely_to_main_queue {
+                resultHandler(UIImage(named: self.imageName))
+            }
             return nil
         case .imageFile:
-            resultHandler(UIImage(contentsOfFile: imageFile))
+            dispatch_async_safely_to_main_queue {
+                resultHandler(UIImage(contentsOfFile: self.imageFile))
+            }
             return nil
         case .asset: 
             let options = PHImageRequestOptions()
             return PHCachingImageManager.default().requestImage(for: self.asset!, targetSize: targetSize, contentMode: contentMode, options: options) { (result, _) in
-                resultHandler(result)
+                dispatch_async_safely_to_main_queue {
+                    resultHandler(result)
+                }
             }
         }
     }

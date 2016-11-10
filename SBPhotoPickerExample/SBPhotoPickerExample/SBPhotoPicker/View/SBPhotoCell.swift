@@ -110,8 +110,8 @@ final class SBPhotoCell: UICollectionViewCell {
         contentView.addConstraint(NSLayoutConstraint.init(item: selectionOverlayView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1.0, constant: 0))
         contentView.addConstraint(NSLayoutConstraint.init(item: selectionOverlayView, attribute: .right, relatedBy: .equal, toItem: contentView, attribute: .right, multiplier: 1.0, constant: 0))
         
-        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0))
-        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .right, relatedBy: .equal, toItem: contentView, attribute: .right, multiplier: 1.0, constant: 0))
+        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 5))
+        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .right, relatedBy: .equal, toItem: contentView, attribute: .right, multiplier: 1.0, constant: -5))
         contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1.0, constant: 25))
         contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1.0, constant: 25))
         
@@ -120,15 +120,14 @@ final class SBPhotoCell: UICollectionViewCell {
         contentView.addConstraint(NSLayoutConstraint.init(item: deselectionView, attribute: .width, relatedBy: .equal, toItem: selectionView, attribute: .width, multiplier: 1.0, constant: 0))
         contentView.addConstraint(NSLayoutConstraint.init(item: deselectionView, attribute: .height, relatedBy: .equal, toItem: selectionView, attribute: .height, multiplier: 1.0, constant: 0))
         
-        contentView.addConstraint(NSLayoutConstraint.init(item: selectedButton, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 0))
-        contentView.addConstraint(NSLayoutConstraint.init(item: selectedButton, attribute: .right, relatedBy: .equal, toItem: contentView, attribute: .right, multiplier: 1.0, constant: 0))
+        contentView.addConstraint(NSLayoutConstraint.init(item: selectedButton, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1.0, constant: 5))
+        contentView.addConstraint(NSLayoutConstraint.init(item: selectedButton, attribute: .right, relatedBy: .equal, toItem: contentView, attribute: .right, multiplier: 1.0, constant: -5))
         contentView.addConstraint(NSLayoutConstraint.init(item: selectedButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1.0, constant: 35))
         contentView.addConstraint(NSLayoutConstraint.init(item: selectedButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1.0, constant: 35))
         
     }
     
     @objc fileprivate func selectedButtonAction(_ sender: UIButton) {
-        selectedPhoto = !selectedPhoto
         selectedButtonClick?(selectedPhoto)
     }
     

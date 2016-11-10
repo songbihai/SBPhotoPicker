@@ -4,7 +4,7 @@
 //
 //  Created by 宋碧海 on 2016/11/9.
 //  Copyright © 2016年 songbihai. All rights reserved.
-//
+//  处理第一个是不是拍照的逻辑更方便
 
 import UIKit
 
