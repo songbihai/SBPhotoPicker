@@ -16,6 +16,7 @@ extension UIButton {
         UIView.setAnimationsEnabled(false)
         
         self.setTitle(title, for: state)
+        self.setNeedsLayout()
         self.layoutIfNeeded()
         
         UIView.setAnimationsEnabled(animationEnabled)

@@ -64,11 +64,7 @@ final class SBPhotosViewController: UICollectionViewController {
     fileprivate var doneBarButtonTitle: String?
     fileprivate let expandAnimator = SBZoomAnimator() //push动画
     fileprivate let shrinkAnimator = SBZoomAnimator() //pop动画
-    fileprivate var albumsDataSource: SBAlbumTableViewDataSource {
-        didSet {
-            
-        }
-    }
+    fileprivate var albumsDataSource: SBAlbumTableViewDataSource
     
     init(photoCollections: [SBPhotoCollection], defaultSelections: SBPhotoCollection, settings aSettings: SBPhotoPickerSettings) {
         albumsDataSource = SBAlbumTableViewDataSource(photoCollections: photoCollections)
@@ -272,6 +268,8 @@ private extension SBPhotosViewController {
                         }
                         
                         doneBarButton?.isEnabled = self.selections.count > 0
+                        navigationController?.navigationBar.setNeedsLayout()
+                        navigationController?.navigationBar.layoutIfNeeded()
                     }
                     
                     break
@@ -519,11 +517,7 @@ private extension SBPhotosViewController {
     }
     
     func fixIndexPath(_ indexPath: IndexPath) -> IndexPath {
-//        if settings.takePhotos && cameraAvailable {
-            return IndexPath(item: indexPath.item, section: 1)
-//        }else {
-//            return IndexPath(item: indexPath.item, section: indexPath.section)
-//        }
+        return IndexPath(item: indexPath.item, section: 1)
     }
 }
 

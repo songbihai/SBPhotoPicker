@@ -17,7 +17,7 @@ class ViewController: UIViewController {
 
     @IBAction func btnAction(_ sender: UIButton) {
         let vc = SBPhotoPickerViewController()
-        vc.takePhotos = false
+//        vc.takePhotos = false
         vc.fullscreen = true
 //        vc.takeCaremra = true
         sb_presentImagePickerController(vc, animated: true, select: { (photo) in

@@ -16,6 +16,7 @@
 		2D7BFDE21DC7484300B1ABC9 /* UIImage+SBPhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7BFDE11DC7484300B1ABC9 /* UIImage+SBPhotoPicker.swift */; };
 		2D9E82911DD2F31F00AC34BE /* SBCameraCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9E82901DD2F31F00AC34BE /* SBCameraCollectionViewDataSource.swift */; };
 		2D9E82931DD2FA1800AC34BE /* SBComposedCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9E82921DD2FA1800AC34BE /* SBComposedCollectionViewDataSource.swift */; };
+		2D9E82C61DD57CC100AC34BE /* SBPhotoBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9E82C51DD57CC100AC34BE /* SBPhotoBrowser.swift */; };
 		2DA031711DC0500700434F83 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA031701DC0500700434F83 /* AppDelegate.swift */; };
 		2DA031731DC0500700434F83 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA031721DC0500700434F83 /* ViewController.swift */; };
 		2DA031761DC0500700434F83 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2DA031741DC0500700434F83 /* Main.storyboard */; };
@@ -65,6 +66,7 @@
 		2D7BFDE11DC7484300B1ABC9 /* UIImage+SBPhotoPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+SBPhotoPicker.swift"; sourceTree = "<group>"; };
 		2D9E82901DD2F31F00AC34BE /* SBCameraCollectionViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SBCameraCollectionViewDataSource.swift; sourceTree = "<group>"; };
 		2D9E82921DD2FA1800AC34BE /* SBComposedCollectionViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SBComposedCollectionViewDataSource.swift; sourceTree = "<group>"; };
+		2D9E82C51DD57CC100AC34BE /* SBPhotoBrowser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SBPhotoBrowser.swift; sourceTree = "<group>"; };
 		2DA0316D1DC0500700434F83 /* SBPhotoPickerExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SBPhotoPickerExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DA031701DC0500700434F83 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2DA031721DC0500700434F83 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 				2D7BFDD31DC73D5500B1ABC9 /* SBPhotoPickerViewController.swift */,
 				2DD97BEF1DC87B8E00B48EBF /* SBPhotosViewController.swift */,
 				2DD97C1D1DC9AFE200B48EBF /* SBAlbumsTableViewController.swift */,
+				2D9E82C51DD57CC100AC34BE /* SBPhotoBrowser.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 				2DD97BEE1DC875BC00B48EBF /* SBCollectionViewLayout.swift in Sources */,
 				2DD97BEC1DC872FF00B48EBF /* UIImageViewModeScaleAspect.swift in Sources */,
 				2D7BFDD71DC73D5600B1ABC9 /* SBPhotoPickerViewController.swift in Sources */,
+				2D9E82C61DD57CC100AC34BE /* SBPhotoBrowser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
