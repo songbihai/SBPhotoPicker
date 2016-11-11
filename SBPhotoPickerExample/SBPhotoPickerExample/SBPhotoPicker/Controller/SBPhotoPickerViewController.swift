@@ -12,7 +12,7 @@ import Photos
 open class SBPhotoPickerViewController: UINavigationController {
 
     /// 完成按钮
-    open var doneButton: UIBarButtonItem = UIBarButtonItem(title: "完成", style: .plain, target: nil, action: nil) 
+    open var doneButton: UIBarButtonItem = UIBarButtonItem(title: "完成", style: .plain, target: nil, action: nil)
     
     /// 取消按钮
     open var cancelButton: UIBarButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: nil, action: nil)

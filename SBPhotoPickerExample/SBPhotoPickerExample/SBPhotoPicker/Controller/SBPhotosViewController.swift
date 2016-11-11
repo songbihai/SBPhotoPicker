@@ -219,8 +219,14 @@ extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
                     self.photoCollection.title = title
                     self.selectedIndexPaths = [IndexPath]()
                     self.fetchResult.enumerateObjects(using: { [unowned self](asset, idx, stop) in
-                        let assets = self.selections.map({ (photo) -> PHAsset in
+                        var assets = self.selections.map({ (photo) -> PHAsset in
                             return photo.asset!
+                        })
+                        photosChanges.removedObjects.forEach({ (asset) in
+                            if let index = assets.index(of: asset) {
+                                assets.remove(at: index)
+                                self.selections.remove(at: index)
+                            }
                         })
                         let photo = SBPhoto(asset: asset)
                         if assets.contains(asset) {
@@ -230,12 +236,12 @@ extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
                             photo.selected = false
                         }
                         self.photoCollection.append(photo)
-                        
                     })
                     self.photoCollections[self.selectedAlbumIndex] = self.photoCollection
                     self.albumsDataSource = SBAlbumTableViewDataSource.init(photoCollections: self.photoCollections)
                     self.albumsViewController.tableView.dataSource = self.albumsDataSource
                     self.albumsViewController.tableView.reloadData()
+                    self.updateDoneButton()
                     collectionView.reloadData()
                 }
             }
@@ -253,16 +259,16 @@ private extension SBPhotosViewController {
                 if let btn = view as? UIButton, checkIfRightButtonItem(btn) {
 
                     if doneBarButtonTitle == nil {
-                        doneBarButtonTitle = btn.title(for: UIControlState.normal)
+                        doneBarButtonTitle = btn.title(for: UIControlState())
                     }
                     
                     if let doneBarButtonTitle = doneBarButtonTitle {
                         if (self.selections.count == 1 && self.settings.maxNumberOfSelections == 1) {
-                            btn.sb_setTitleWithoutAnimation("\(doneBarButtonTitle)", forState: UIControlState.normal)
+                            btn.sb_setTitleWithoutAnimation("\(doneBarButtonTitle)", forState: UIControlState())
                         } else if self.selections.count > 0 {
-                            btn.sb_setTitleWithoutAnimation("\(doneBarButtonTitle) (\(self.selections.count))", forState: UIControlState.normal)
+                            btn.sb_setTitleWithoutAnimation("\(doneBarButtonTitle) (\(self.selections.count))", forState: UIControlState())
                         } else {
-                            btn.sb_setTitleWithoutAnimation(doneBarButtonTitle, forState: UIControlState.normal)
+                            btn.sb_setTitleWithoutAnimation(doneBarButtonTitle, forState: UIControlState())
                         }
                         
                         doneBarButton?.isEnabled = self.selections.count > 0
@@ -513,11 +519,11 @@ private extension SBPhotosViewController {
     }
     
     func fixIndexPath(_ indexPath: IndexPath) -> IndexPath {
-        if settings.takePhotos && cameraAvailable {
+//        if settings.takePhotos && cameraAvailable {
             return IndexPath(item: indexPath.item, section: 1)
-        }else {
-            return IndexPath(item: indexPath.item, section: indexPath.section)
-        }
+//        }else {
+//            return IndexPath(item: indexPath.item, section: indexPath.section)
+//        }
     }
 }
 
