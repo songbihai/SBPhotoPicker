@@ -9,7 +9,6 @@
 import UIKit
 import Photos
 
-
 final class SBPhotosViewController: UICollectionViewController {
     var selectionClosure: ((_ photo: SBPhoto) -> Void)?
     var deselectionClosure: ((_ photo: SBPhoto) -> Void)?
@@ -32,7 +31,6 @@ final class SBPhotosViewController: UICollectionViewController {
     var fetchResult: PHFetchResult<PHAsset>!
     var cameraDataSource: SBCameraCollectionViewDataSource
     
-    fileprivate var selectedAlbumIndex: Int = 0
     fileprivate let cameraAvailable: Bool = UIImagePickerController.isSourceTypeAvailable(.camera)
     fileprivate let photosManager = PHCachingImageManager.default()
     fileprivate let imageContentMode: PHImageContentMode = .aspectFill
@@ -157,6 +155,7 @@ final class SBPhotosViewController: UICollectionViewController {
     func albumButtonPressed(_ sender: UIButton) {
         self.albumTitleView?.isSelected = !self.albumTitleView!.isSelected
         if self.albumTitleView!.isSelected {
+            self.albumsViewController.tableView.reloadData()
             UIView.animate(withDuration: 0.35, animations: {
                 self.alphaView.isHidden = false
                 self.albumsViewController.view.layer.transform = CATransform3DMakeTranslation(0, self.view.bounds.height, 0)
@@ -205,6 +204,9 @@ extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
         }
         
         dispatch_async_safely_to_main_queue {
+            for (index, photoCollection) in self.photoCollections.enumerated() {
+                
+            }
             if let photosChanges = changeInstance.changeDetails(for: self.fetchResult) {
                 
                 if photosChanges.hasIncrementalChanges && ((photosChanges.removedIndexes?.count ?? 0) > 0 || (photosChanges.insertedIndexes?.count ?? 0) > 0 || (photosChanges.changedIndexes?.count ?? 0) > 0) {
@@ -222,6 +224,7 @@ extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
                             if let index = assets.index(of: asset) {
                                 assets.remove(at: index)
                                 self.selections.remove(at: index)
+                                self.photoCollection.selectedCount = self.photoCollection.selectedCount - 1
                             }
                         })
                         let photo = SBPhoto(asset: asset)
@@ -233,10 +236,6 @@ extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
                         }
                         self.photoCollection.append(photo)
                     })
-                    self.photoCollections[self.selectedAlbumIndex] = self.photoCollection
-                    self.albumsDataSource = SBAlbumTableViewDataSource.init(photoCollections: self.photoCollections)
-                    self.albumsViewController.tableView.dataSource = self.albumsDataSource
-                    self.albumsViewController.tableView.reloadData()
                     self.updateDoneButton()
                     collectionView.reloadData()
                 }
@@ -244,7 +243,7 @@ extension SBPhotosViewController: PHPhotoLibraryChangeObserver {
         }
     }
 }
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 // MARK: private method
 private extension SBPhotosViewController {
     
@@ -324,7 +323,6 @@ extension SBPhotosViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row < self.photoCollections.count {
             let album = self.photoCollections[indexPath.row]
-            selectedAlbumIndex = indexPath.row
             initializePhotosDataSource(album)
             updateAlbumTitle(album)
             synchronizeCollectionView()
@@ -490,7 +488,7 @@ private extension SBPhotosViewController {
         photo.selected = true
         self.selections.append(photo)
         self.selectedIndexPaths.append(fixIndexPath(indexPath))
-        
+        self.photoCollection.selectedCount = self.photoCollection.selectedCount + 1
         cell.selectionString = String(self.selections.count)
         self.updateDoneButton()
         dispatch_async_safely_to_queue(DispatchQueue.global(qos: .default), {
@@ -509,6 +507,7 @@ private extension SBPhotosViewController {
         cell.selectedPhoto = false
         self.selections.remove(at: index)
         self.selectedIndexPaths.remove(at: index)
+        self.photoCollection.selectedCount = self.photoCollection.selectedCount - 1
         self.updateDoneButton()
         synchronizeCollectionView()
         dispatch_async_safely_to_queue(DispatchQueue.global(qos: .default), {

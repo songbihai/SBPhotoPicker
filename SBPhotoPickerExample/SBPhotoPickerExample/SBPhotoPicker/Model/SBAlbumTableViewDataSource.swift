@@ -35,7 +35,7 @@ extension SBAlbumTableViewDataSource: UITableViewDataSource {
 
             cell.albumTitleLabel.text = album.title
             cell.countLabel.text = "(\(album.count))"
-            
+            cell.selectedCount = album.selectedCount
             cell.selectionStyle = .none
             let imageSize = CGSize(width: 79, height: 79)
             let imageContentMode: PHImageContentMode = .aspectFill

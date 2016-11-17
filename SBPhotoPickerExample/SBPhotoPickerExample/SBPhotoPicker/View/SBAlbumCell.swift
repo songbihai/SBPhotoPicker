@@ -129,8 +129,8 @@ final class SBAlbumCell: UITableViewCell {
         contentView.addSubview(selectionView)
         contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .centerY, relatedBy: .equal, toItem: contentView, attribute: .centerY, multiplier: 1.0, constant: 0))
         contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .right, relatedBy: .equal, toItem: contentView, attribute: .right, multiplier: 1.0, constant: -15))
-        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1.0, constant: 30))
-        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1.0, constant: 30))
+        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1.0, constant: 25))
+        contentView.addConstraint(NSLayoutConstraint.init(item: selectionView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1.0, constant: 25))
     }
 
 }
